@@ -31,7 +31,9 @@ jobs:
       - name: Find Changed Directories
         id: detect
         run: |
-          changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq)
+          changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | \
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ printf("%s, ", $0) }' | sed 's/, $//')
+          
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
       - name: Generate JSON Output
@@ -52,6 +54,7 @@ jobs:
           json="${json%,}"
 
           json="$json}]}"
+          
           echo "json=$json" >> $GITHUB_OUTPUT
 
       - run: echo ${{ steps.json.outputs.json }}
