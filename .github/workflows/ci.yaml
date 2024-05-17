@@ -1,0 +1,73 @@
+name: Developer's PR Check Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - develop
+
+jobs:
+  changes:
+    name: "Detect Directory Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.json.outputs.json }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Get latest commit SHA
+        id: extract_sha
+        shell: bash
+        run: |
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          commit_sha=$(git ls-remote origin "refs/heads/$branch" | cut -f1)
+          echo "commit_sha=$commit_sha" >> $GITHUB_OUTPUT
+
+      - name: Find Changed Directories
+        id: detect
+        run: |
+          changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq)
+          echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
+
+      - name: Generate JSON Output
+        id: json
+        run: |
+          count=$(echo ${{ steps.detect.outputs.changed_dirs }} | wc -l)
+
+          json="{\"include\":[{\"module\":"
+
+          for dir in ${{ steps.detect.outputs.changed_dirs }}; do
+            if $count = 1; do
+              json="$json\"$dir\""
+            else
+              json="$json\"$dir\","
+            fi
+          done
+
+          json="${json%,}"
+
+          json="$json}]}"
+          echo "json=$json" >> $GITHUB_OUTPUT
+
+      - run: echo ${{ steps.json.outputs.json }}
+
+  build:
+    name: Build and Analyze
+    runs-on: self-hosted
+    needs: changes
+    strategy:
+      matrix:
+        module: ${{ fromJSON(needs.json.outputs.json) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: echo ${{ fromJSON(needs.json.outputs.json) }}
