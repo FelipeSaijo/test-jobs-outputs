@@ -11,7 +11,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.test2.outputs.matrix2 }}
+      changed: ${{ steps.test.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -59,22 +59,16 @@ jobs:
 
       - id: test
         run: |
-          echo "matrix={\"include\":[{\"module\": [\"folder1\",\"folder2\"]}]}" >> $GITHUB_OUTPUT
+          echo "matrix={\"include\":[{\"module\":[\"folder1\",\"folder2\"]}]}" >> $GITHUB_OUTPUT
 
-      - id: test2  
-        run: |
-          set -eux
-          DATA=$(echo ${{ steps.test.outputs.matrix }} | jq -c '. | map(split("/")[0]) | unique')
-          echo "matrix2=$DATA" >> "$GITHUB_OUTPUT"
-
-      - run: echo ${{ steps.test2.outputs.matrix2 }}
+      - run: echo ${{ steps.test.outputs.matrix }}
 
   build:
     name: Build and Analyze
     runs-on: self-hosted
     needs: changes
     strategy:
-      matrix: ${{ fromJSON(needs.test2.outputs.matrix2) }}
+      matrix: ${{ fromJSON(needs.test.outputs.matrix) }}
 
     steps:
       - name: Checkout
