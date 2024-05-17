@@ -43,14 +43,14 @@ jobs:
           matrix: |
             module {${{ steps.detect.outputs.changed }}}
 
-      - run: echo ${{ steps.screate_matrix.outputs.matrix }}
+      - run: echo ${{ steps.create_matrix.outputs.matrix }}
 
   build:
     name: Build and Analyze
     runs-on: self-hosted
     needs: changes
     strategy:
-      matrix: ${{ fromJSON(needs.test.outputs.changed) }}
+      matrix: ${{ fromJSON(needs.changes.outputs.changed) }}
 
     steps:
       - name: Checkout
@@ -58,4 +58,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo ${{ fromJSON(needs.test.outputs.changed) }}
+      - run: echo ${{ fromJSON(needs.changes.outputs.changed) }}
