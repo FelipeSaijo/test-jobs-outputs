@@ -50,7 +50,8 @@ jobs:
     runs-on: self-hosted
     needs: changes
     strategy:
-      matrix: ${{ fromJSON(needs.changes.outputs.changed) }}
+      matrix: 
+        include: ${{ fromJSON(needs.changes.outputs.changed) }}
 
     steps:
       - name: Checkout
@@ -58,4 +59,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo ${{ fromJSON(needs.changes.outputs.changed) }}
+      - run: echo ${{ matrix.module }}
