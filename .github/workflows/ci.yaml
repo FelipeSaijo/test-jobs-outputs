@@ -4,14 +4,14 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - develop
+      - main
 
 jobs:
   changes:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.json.outputs.json }}
+      changed: ${{ steps.create_matrix.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -31,38 +31,27 @@ jobs:
       - name: Find Changed Directories
         id: detect
         run: |
-          changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq)
+          changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | \
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(","); printf("%s", $0) }')
+          
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Generate JSON Output
-        id: json
-        run: |
-          count=$(echo ${{ steps.detect.outputs.changed_dirs }} | wc -l)
+      - name: Create matrix
+        id: create_matrix
+        uses: fabiocaccamo/create-matrix-action@v3
+        with:
+          matrix: |
+            module {${{ steps.detect.outputs.changed }}}
 
-          json="{\"include\":[{\"module\":"
-
-          for dir in ${{ steps.detect.outputs.changed_dirs }}; do
-            if $count = 1; do
-              json="$json\"$dir\""
-            else
-              json="$json\"$dir\","
-            fi
-          done
-
-          json="${json%,}"
-
-          json="$json}]}"
-          echo "json=$json" >> $GITHUB_OUTPUT
-
-      - run: echo ${{ steps.json.outputs.json }}
+      - run: echo ${{ steps.create_matrix.outputs.matrix }}
 
   build:
     name: Build and Analyze
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: changes
     strategy:
-      matrix:
-        module: ${{ fromJSON(needs.json.outputs.json) }}
+      matrix: 
+        include: ${{ fromJSON(needs.changes.outputs.changed) }}
 
     steps:
       - name: Checkout
@@ -70,4 +59,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo ${{ fromJSON(needs.json.outputs.json) }}
+      - run: echo ${{ matrix.module }}
