@@ -68,7 +68,7 @@ jobs:
     runs-on: self-hosted
     needs: changes
     strategy:
-      matrix: ${{ fromJSON(needs.test.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.test.outputs.changed) }}
 
     steps:
       - name: Checkout
@@ -76,4 +76,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo ${{ fromJSON(needs.test.outputs.matrix) }}
+      - run: echo ${{ fromJSON(needs.test.outputs.changed) }}
