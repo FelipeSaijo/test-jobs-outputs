@@ -32,7 +32,7 @@ jobs:
         id: detect
         run: |
           changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | \
-          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ printf("%s,", $0) }' | sed 's/, $//')
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(","); printf("%s", $0) }'
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
@@ -41,7 +41,7 @@ jobs:
         uses: fabiocaccamo/create-matrix-action@v3
         with:
           matrix: |
-            module: ${{ steps.detect.outputs.changed }}
+            module: {${{ steps.detect.outputs.changed }}}
 
       - run: echo ${{ steps.screate_matrix.outputs.matrix }}
 
