@@ -41,7 +41,9 @@ jobs:
         run: |
           count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
 
-          cd ./github/workflows
+          ls -la
+
+          cd ./.github/workflows
 
           echo "[" >> ./matrix_includes.json
           echo "  {" >> ./matrix_includes.json
