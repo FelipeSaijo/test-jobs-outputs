@@ -44,7 +44,7 @@ jobs:
           json="{\"include\":[{\"module\":"
 
           for dir in ${{ steps.detect.outputs.changed_dirs }}; do
-            if $count = 1; do
+            if [ $count = 1 ]; do
               json="$json\"$dir\""
             else
               json="$json\"$dir\","
