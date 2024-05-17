@@ -65,6 +65,9 @@ jobs:
 
           echo "]" >> ./matrix_includes.json
 
+
+          cat ./matrix_includes.json
+
       - id: set-matrix
         uses: JoshuaTheMiller/conditional-build-matrix@main
 
