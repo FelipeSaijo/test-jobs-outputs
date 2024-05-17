@@ -11,7 +11,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.json.outputs.json }}
+      changed: ${{ steps.test.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -36,36 +36,39 @@ jobs:
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Generate JSON Output
-        id: json
+#      - name: Generate JSON Output
+#        id: json
+#        run: |
+#          count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
+#
+#          json="{\"include\":[{\"module\":"
+#
+#          for dir in ${{ steps.detect.outputs.changed }}; do
+#            if [ $count = 1 ]; then
+#              json="$json\"$dir\""
+#            else
+#              json="$json\"$dir\","
+#            fi
+#          done
+#
+#          json="${json%,}"
+#
+#          json="$json}]}"
+#          
+#          echo "json=$json" >> $GITHUB_OUTPUT
+
+      - id: test
         run: |
-          count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
+          echo "matrix={\"include\":[{\"module\": [\"folder1\",\"folder2\"]}]}" >> $GITHUB_OUTPUT
 
-          json="{\"include\":[{\"module\":"
-
-          for dir in ${{ steps.detect.outputs.changed }}; do
-            if [ $count = 1 ]; then
-              json="$json\"$dir\""
-            else
-              json="$json\"$dir\","
-            fi
-          done
-
-          json="${json%,}"
-
-          json="$json}]}"
-          
-          echo "json=$json" >> $GITHUB_OUTPUT
-
-      - run: echo ${{ steps.json.outputs.json }}
+      - run: echo ${{ steps.test.outputs.matrix }}
 
   build:
     name: Build and Analyze
     runs-on: self-hosted
     needs: changes
     strategy:
-      matrix:
-        module: ${{ fromJSON(needs.json.outputs.json) }}
+      matrix: ${{ fromJSON(needs.test.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -73,4 +76,4 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo ${{ fromJSON(needs.json.outputs.json) }}
+      - run: echo ${{ fromJSON(needs.test.outputs.matrix) }}
