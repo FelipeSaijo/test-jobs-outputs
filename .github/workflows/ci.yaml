@@ -44,7 +44,7 @@ jobs:
           echo "[" >> ./matrix_includes.json
           echo "  {" >> ./matrix_includes.json
 
-          echo "    \"module\": [${{ steps.detect.outputs.changed }}]" >> ./matrix_includes.json
+          echo "    \"module\":${{ steps.detect.outputs.changed }}" >> ./matrix_includes.json
 
           echo "  }" >> ./matrix_includes.json
 
