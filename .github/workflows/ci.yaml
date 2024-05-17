@@ -11,7 +11,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.test.outputs.matrix }}
+      changed: ${{ steps.set-matrix.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -36,32 +36,37 @@ jobs:
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-#      - name: Generate JSON Output
-#        id: json
-#        run: |
-#          count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
-#
-#          json="{\"include\":[{\"module\":"
-#
-#          for dir in ${{ steps.detect.outputs.changed }}; do
-#            if [ $count = 1 ]; then
-#              json="$json\"$dir\""
-#            else
-#              json="$json\"$dir\","
-#            fi
-#          done
-#
-#          json="${json%,}"
-#
-#          json="$json}]}"
-#          
-#          echo "json=$json" >> $GITHUB_OUTPUT
-
-      - id: test
+      - name: Generate JSON Output
+        id: json
         run: |
-          echo "matrix={\"include\":[{\"module\":[\"folder1\",\"folder2\"]}]}" >> $GITHUB_OUTPUT
+          count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
 
-      - run: echo ${{ steps.test.outputs.matrix }}
+          cd ./github/workflows
+
+          echo "[" >> ./matrix_includes.json
+          echo "  {" >> ./matrix_includes.json
+
+          for dir in ${{ steps.detect.outputs.changed }}; do
+
+            json=$(echo "module:")
+
+            if [ $count = 1 ]; then
+              json="$json\"$dir\""
+            else
+              json="$json\"$dir\","
+            fi
+          done
+
+          echo "    $json" >> ./matrix_includes.json
+
+          echo "  }" >> ./matrix_includes.json
+
+          echo "]" >> ./matrix_includes.json
+
+      - id: set-matrix
+        uses: JoshuaTheMiller/conditional-build-matrix@main
+
+      - run: echo ${{ steps.set-matrix.outputs.matrix }}
 
   build:
     name: Build and Analyze
