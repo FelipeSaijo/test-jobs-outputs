@@ -11,7 +11,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.screate_matrix.outputs.matrix }}
+      changed: ${{ steps.create_matrix.outputs.matrix }}
     steps:
 
       - name: Checkout
