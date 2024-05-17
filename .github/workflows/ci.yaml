@@ -41,7 +41,7 @@ jobs:
         uses: fabiocaccamo/create-matrix-action@v3
         with:
           matrix: |
-            module: {${{ steps.detect.outputs.changed }}}
+            module {${{ steps.detect.outputs.changed }}}
 
       - run: echo ${{ steps.screate_matrix.outputs.matrix }}
 
