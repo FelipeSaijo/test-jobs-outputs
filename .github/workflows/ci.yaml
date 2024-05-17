@@ -39,11 +39,11 @@ jobs:
       - name: Generate JSON Output
         id: json
         run: |
-          count=$(echo ${{ steps.detect.outputs.changed_dirs }} | wc -l)
+          count=$(echo ${{ steps.detect.outputs.changed }} | wc -l)
 
           json="{\"include\":[{\"module\":"
 
-          for dir in ${{ steps.detect.outputs.changed_dirs }}; do
+          for dir in ${{ steps.detect.outputs.changed }}; do
             if [ $count = 1 ]; then
               json="$json\"$dir\""
             else
