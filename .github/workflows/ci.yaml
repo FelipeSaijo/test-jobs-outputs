@@ -11,7 +11,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.set-matrix.outputs.matrix }}
+      changed: ${{ steps.screate_matrix.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -32,31 +32,18 @@ jobs:
         id: detect
         run: |
           changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ github.event.before }} ${{ steps.extract_sha.outputs.commit_sha }} | \
-          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ printf("\"%s\",", $0) }' | sed 's/, $//')
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ printf("%s,", $0) }' | sed 's/, $//')
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Generate JSON Output
-        id: json
-        run: |
-          cd ./.github/workflows
+      - name: Create matrix
+        id: create_matrix
+        uses: fabiocaccamo/create-matrix-action@v3
+        with:
+          matrix: |
+            module: ${{ steps.detect.outputs.changed }}
 
-          echo "[" >> ./matrix_includes.json
-          echo "  {" >> ./matrix_includes.json
-
-          echo "    \"module\":[${{ steps.detect.outputs.changed }}]" >> ./matrix_includes.json
-
-          echo "  }" >> ./matrix_includes.json
-
-          echo "]" >> ./matrix_includes.json
-
-
-          cat ./matrix_includes.json
-
-      - id: set-matrix
-        uses: JoshuaTheMiller/conditional-build-matrix@main
-
-      - run: echo ${{ steps.set-matrix.outputs.matrix }}
+      - run: echo ${{ steps.screate_matrix.outputs.matrix }}
 
   build:
     name: Build and Analyze
