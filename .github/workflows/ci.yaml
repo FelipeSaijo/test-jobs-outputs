@@ -10,7 +10,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.detect.outputs.matrix }}
+      changed: ${{ steps.detect.outputs.changed }}
     steps:
 
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
           
           echo "changed=$(jq -r -c . <<< "$changed_dirs")" >> $GITHUB_OUTPUT 
 
-      - run: echo ${{ steps.detect.outputs.matrix }}
+      - run: echo ${{ steps.detect.outputs.changed }}
 
   deploy:
     runs-on: ubuntu-latest
