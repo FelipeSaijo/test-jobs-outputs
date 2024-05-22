@@ -49,6 +49,9 @@ jobs:
         id: extend
         with:
           matrix: ${{ steps.setup-matrix.outputs.matrix }}
+          sort-by: '[.module] | join("-")'
+          group-by: '.module'
+          nested-matrices-count: '1'  
 
       - run: echo ${{ steps.extend.outputs.matrix }}
 
