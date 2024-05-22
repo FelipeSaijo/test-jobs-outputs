@@ -38,12 +38,11 @@ jobs:
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - id: setup-matrix
-        uses: druzsan/setup-matrix@v2
+      - name: Determine matrix
+        id: generate_matrix
+        uses: coactions/dynamic-matrix@v1
         with:
-          # Use | to preserve valid YAML syntax
-          matrix: |
-            module [${{ steps.detect.outputs.changed }}]
+            module: ${{ steps.detect.outputs.changed }}
 
       - run: echo ${{ steps.extend.outputs.matrix }}
 
