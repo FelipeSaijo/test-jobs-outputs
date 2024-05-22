@@ -72,7 +72,7 @@ jobs:
         env:
           K8S_FOLDER: ${{ matrix.module }}
         run: |
-          git merge ${{ steps.branch.outputs.branch }}
+          git merge origin/${{ steps.branch.outputs.branch }}
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
 
       - name: Commit & Push changes
