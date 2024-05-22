@@ -73,5 +73,8 @@ jobs:
       - name: Commit & Push changes
         uses: actions-js/push@master
         with:
+          github_token: ${{ secrets.TOKEN }}
+          branch: ${{ steps.branch.outputs.branch }}
+          message: ":recycle: refactor: updated ${{ matrix.module }}/test.txt"
           force: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          amend: true
