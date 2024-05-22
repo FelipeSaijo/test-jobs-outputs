@@ -72,13 +72,14 @@ jobs:
         id: branch-names
         uses: tj-actions/branch-names@v8
 
-      - name: Diff
-        id: diff
-        uses: yanamura/git-merge-diff@v1
+      - name: Merge Diff
+        uses: devmasx/merge-branch@master
         with:
-            from: ${{ steps.branch.outputs.branch }}
-            to: ${{ steps.branch-names.outputs.current_branch }}
-
+          type: now
+          from_branch: ${{ steps.branch.outputs.branch }}
+          target_branch: ${{ steps.branch-names.outputs.current_branch }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Update Image Version
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
