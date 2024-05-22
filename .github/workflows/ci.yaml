@@ -34,17 +34,15 @@ jobs:
         id: detect
         run: |
           changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ steps.hash.outputs.hash }} | \
-          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(", "); printf("%s", $0) }')
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(" "); printf("%s", $0) }')
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Build matrix
-        id: build-matrix
-        uses: jgiannuzzi/setup-build-matrix@v1
+      - uses: danyow/json-matrix-builder@master
+        id: array
         with:
-          config: |
-            matrix:
-              module: [${{ steps.detect.outputs.changed }}]
+          cmd: ${{ steps.detect.outputs.changed }}
+          separator: space
 
       - run: echo ${{ steps.build-matrix.outputs.matrix }}
 
