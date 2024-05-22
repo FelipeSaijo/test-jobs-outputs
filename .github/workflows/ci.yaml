@@ -10,7 +10,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.extend.outputs.matrix }}
+      changed: ${{ steps.build-matrix.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -38,13 +38,15 @@ jobs:
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Determine matrix
-        id: generate_matrix
-        uses: coactions/dynamic-matrix@v1
+      - name: Build matrix
+        id: build-matrix
+        uses: jgiannuzzi/setup-build-matrix@v1
         with:
-            module: ${{ steps.detect.outputs.changed }}
+          config: |
+            matrix:
+              module: [${{ steps.detect.outputs.changed }}]
 
-      - run: echo ${{ steps.extend.outputs.matrix }}
+      - run: echo ${{ steps.build-matrix.outputs.matrix }}
 
   deploy:
     runs-on: ubuntu-latest
