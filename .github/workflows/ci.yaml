@@ -76,4 +76,4 @@ jobs:
           branch: ${{ steps.branch.outputs.branch }}
           directory: '.'
           message: ":recycle: refactor: Update ${{ matrix.module }}/test.txt"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TOKEN }}
