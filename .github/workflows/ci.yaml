@@ -34,24 +34,16 @@ jobs:
         id: detect
         run: |
           changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ steps.hash.outputs.hash }} | \
-          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(" "); printf("%s", $0) }')
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(", "); printf("%s", $0) }')
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - name: Setup Matrix
-        id: setup-matrix
-        uses: druzsan/setup-matrix@v1
+      - id: setup-matrix
+        uses: druzsan/setup-matrix@v2
         with:
+          # Use | to preserve valid YAML syntax
           matrix: |
-            module: ${{ steps.detect.outputs.changed }}
-
-      - uses: cloudposse/github-action-matrix-extended@main
-        id: extend
-        with:
-          matrix: ${{ steps.setup-matrix.outputs.matrix }}
-          sort-by: '[.module] | join("-")'
-          group-by: '.module'
-          nested-matrices-count: '1'  
+            module [${{ steps.detect.outputs.changed }}]
 
       - run: echo ${{ steps.extend.outputs.matrix }}
 
