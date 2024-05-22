@@ -70,4 +70,7 @@ jobs:
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
 
-      - run: git push -u origin ${{ steps.branch.outputs.branch }} -f
+      - run: |
+          git add .
+          git commit -m "update ${{ matrix.module }}/test.txt"
+          git push -u origin ${{ steps.branch.outputs.branch }} -f
