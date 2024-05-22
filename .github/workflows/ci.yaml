@@ -70,7 +70,10 @@ jobs:
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
 
-      - run: |
-          git add .
-          git commit -m "update ${{ matrix.module }}/test.txt"
-          git push -u origin ${{ steps.branch.outputs.branch }} -f
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          branch: ${{ steps.branch.outputs.branch }}
+          message: ":recycle: refactor: updated ${{ matrix.module }}/test.txt"
+          rebase: true
