@@ -68,11 +68,19 @@ jobs:
         run: |
           echo "branch=${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
 
+      - name: Get branch names.
+        id: branch-names
+        uses: tj-actions/branch-names@v8
+
+      - name: Diff
+        id: diff
+        uses: yanamura/git-merge-diff@v1
+        with:
+            from: ${{ steps.branch.outputs.branch }}
+            to: ${{ steps.branch-names.outputs.current_branch }}
+
       - name: Update Image Version
-        env:
-          K8S_FOLDER: ${{ matrix.module }}
         run: |
-          git merge origin/${{ steps.branch.outputs.branch }}
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
 
       - name: Commit & Push changes
