@@ -10,7 +10,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.setup-matrix.outputs.matrix }}
+      changed: ${{ steps.extend.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -45,14 +45,18 @@ jobs:
           matrix: |
             module: ${{ steps.detect.outputs.changed }}
 
-      - run: echo ${{ steps.create_matrix.outputs.matrix }}
+      - uses: cloudposse/github-action-matrix-extended@main
+        id: extend
+        with:
+          matrix: ${{ steps.setup-matrix.outputs.matrix }}
+
+      - run: echo ${{ steps.extend.outputs.matrix }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: changes
     strategy:
-      matrix: 
-         include: ${{ fromJSON(needs.changes.outputs.changed) }}
+      matrix: ${{ fromJSON(needs.changes.outputs.changed) }}
       fail-fast: false
       max-parallel: 1
 
