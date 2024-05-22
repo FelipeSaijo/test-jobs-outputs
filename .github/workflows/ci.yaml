@@ -77,5 +77,4 @@ jobs:
           branch: ${{ steps.branch.outputs.branch }}
           message: ":recycle: refactor: updated ${{ matrix.module }}/test.txt"
           force: true
-          amend: true
           directory: "./${{ matrix.module }}/"
