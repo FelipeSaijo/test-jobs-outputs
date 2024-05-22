@@ -66,14 +66,8 @@ jobs:
         id: branch-names
         uses: tj-actions/branch-names@v8
 
-      - run: git pull && git merge origin/${{ steps.branch.outputs.branch }} develop
-
       - name: Update Image Version
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
 
-      - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          force: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: git push -u origin ${{ steps.branch.outputs.branch }} -f
