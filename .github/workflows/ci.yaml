@@ -37,7 +37,7 @@ jobs:
           grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | \
           awk 'BEGIN { printf("[\n") } { if (NR > 1) printf(",\n"); printf("  {\n    \"module\": \"%s\"\n  }", $0) } END { printf("\n]\n") }')
           
-          echo "changed=$(jq -r -c . <<< $changed_dirs)" >> $GITHUB_OUTPUT 
+          echo "changed=$(jq -r -c . <<< "$changed_dirs")" >> $GITHUB_OUTPUT 
 
       - run: echo ${{ steps.detect.outputs.matrix }}
 
