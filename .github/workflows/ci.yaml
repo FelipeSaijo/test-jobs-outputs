@@ -66,6 +66,8 @@ jobs:
         id: branch-names
         uses: tj-actions/branch-names@v8
 
+      - run: git pull && git merge origin/${{ steps.branch.outputs.branch }}
+
       - name: Update Image Version
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
