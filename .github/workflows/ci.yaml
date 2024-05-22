@@ -10,7 +10,7 @@ jobs:
     name: "Detect Directory Changes"
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.build-matrix.outputs.matrix }}
+      changed: ${{ steps.detect.outputs.matrix }}
     steps:
 
       - name: Checkout
@@ -34,23 +34,19 @@ jobs:
         id: detect
         run: |
           changed_dirs=$(git diff-tree --no-commit-id --name-only -r ${{ steps.hash.outputs.hash }} | \
-          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | awk '{ if (NR > 1) printf(" "); printf("%s", $0) }')
+          grep -vE '^(.github|\.idea|boot|gradle)/' | cut -d'/' -f1 | uniq | \
+          awk 'BEGIN { printf("[\n") } { if (NR > 1) printf(",\n"); printf("  {\n    \"module\": \"%s\"\n  }", $0) } END { printf("\n]\n") }')
           
           echo "changed=$changed_dirs" >> $GITHUB_OUTPUT 
 
-      - uses: danyow/json-matrix-builder@master
-        id: array
-        with:
-          cmd: ${{ steps.detect.outputs.changed }}
-          separator: space
-
-      - run: echo ${{ steps.build-matrix.outputs.matrix }}
+      - run: echo ${{ steps.detect.outputs.matrix }}
 
   deploy:
     runs-on: ubuntu-latest
     needs: changes
     strategy:
-      matrix: ${{ fromJSON(needs.changes.outputs.changed) }}
+      matrix: 
+        include: ${{ fromJSON(needs.changes.outputs.changed) }}
       fail-fast: false
       max-parallel: 1
 
