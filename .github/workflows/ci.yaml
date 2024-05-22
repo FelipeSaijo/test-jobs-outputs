@@ -66,10 +66,6 @@ jobs:
         id: branch-names
         uses: tj-actions/branch-names@v8
 
-      - run: |
-          git checkout develop
-          git merge main
-
       - name: Update Image Version
         run: |
           echo "teste-${{ steps.branch.outputs.branch }}" >> ./${{ matrix.module }}/test.txt
@@ -80,5 +76,4 @@ jobs:
           github_token: ${{ secrets.TOKEN }}
           branch: ${{ steps.branch.outputs.branch }}
           message: ":recycle: refactor: updated ${{ matrix.module }}/test.txt"
-          force: true
-          amend: true
+          directory: "./${{ matrix.module }}/"
